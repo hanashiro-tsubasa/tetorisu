@@ -230,4 +230,116 @@ void ranking_sort(void)
 		Ranking_Data[i].rank = i+1;
 	}
 	//6
+	//ファイルに書き込みを行う
+	file_write();
+
+
+}
+
+/*************************************************
+* ランキング画面:名前入力処理
+* 引　数:なし
+* 戻り値:なし
+* ***********************************************/
+void ranking_Input_name(void)
+{
+	int c;
+
+	//カーソル操作処理
+	if (GetButtonDown(XINPUT_BUTTON_DPAD_LEFT) == TRUE)
+	{
+		if (Cursor.x > 0)
+		{
+			Cursor.x--;
+		}
+	}
+
+	if (GetButtonDown(XINPUT_BUTTON_DPAD_RIGHT) == TRUE)
+	{
+		if (Cursor.x < 12)
+		{
+			Cursor.x++;
+		}
+	}
+	if (GetButtonDown(XINPUT_BUTTON_DPAD_UP) == TRUE)
+	{
+		if (Cursor.y > 0)
+		{
+			Cursor.y--;
+		}
+	}
+	if (GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) == TRUE)
+	{
+		if (Cursor.y < 4)
+		{
+			Cursor.y++;
+		}
+	}
+
+	//文字を選択する
+	if (GetButtonDown(XINPUT_BUTTON_B) == TRUE)
+	{
+		if (Cursor.y < 2)
+			//7
+		{
+			c = 'a' + Cursor.x + (Cursor.y * 13);
+			New_Score.name[name_num++] = c;
+		}
+		else if (Cursor.y < 4)
+		{
+			c = 'A' + Cursor.x((Cursor.y - 2) * 13);
+			New_Score.name[name_num++] = c;
+		}
+		else
+		{
+			if (Cursor.x < 10)
+			{
+				c = '0' + Cursor.x;
+				New_Score.name[name_num++] = c;
+			}
+			else if (Cursor.x == 10)
+			{
+				name_num--;
+				New_Score.name[name_num] = '\0';
+			}
+			else
+			{
+				DispMode = RANKING_DISP_MODE;
+				ranking_sort;
+			}
+		}
+	}
+}
+/********************************************************
+* ランキング画面:名前入力描画処理
+* 引　数:なし
+* 戻り値:なし
+* ******************************************************/
+void ranking_input_name_draw(void)
+{
+	int i;
+
+	SetFontSize(40);
+	DrawFormatString(300, 150, GetColor(255, 255, 255), "名前を入力してください");
+	//選択用文字を描画
+	for (i = 0; i < 26; i++)
+	{
+		//8
+		DrawFormatString((i % 13 * 50) + 300, (i / 13 * 50) + 330, GetColor(255, 255,
+			255), "%-3c", 'A' + i);
+	}
+	for (i = 0; i < 10; i++)
+	{
+		DrawFormatString((i % 13 * 50) + 300, (i / 13 * 50) + 530, GetColor(255, 255,
+			255), "%-3c", '0' + i);
+	}
+	DrawFormatString(300, 220, GetColor(255, 255, 255), ">%s", New_Score.name);
+
+	SetFontSize(20);
+
+	//選択している文字をフォーカスしている
+	DrawBox((Cursor.x * 50) + 290, (Cursor.y * 50) + 330,
+		(Cursor.x * 50) + 330, (Cursor.y * 50) + 370,
+		GetColor(255, 255, 255), FALSE);
+	
 }
