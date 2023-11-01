@@ -287,7 +287,7 @@ void ranking_Input_name(void)
 		}
 		else if (Cursor.y < 4)
 		{
-			c = 'A' + Cursor.x((Cursor.y - 2) * 13);
+			c = 'A' + Cursor.x+((Cursor.y - 2) * 13);
 			New_Score.name[name_num++] = c;
 		}
 		else
