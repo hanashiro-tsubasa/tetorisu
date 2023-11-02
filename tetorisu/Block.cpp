@@ -15,10 +15,10 @@
 #define BLOCK_STOCK_POS_X         (500)         //ストックされたブロックの座標
 #define BLOCK_STOCK_POS_Y         (350)         //ストックされたブロックの座標
 #define DROP_BLOCK_INIT_X         (4)           //落ちてくるブロックの初期X座標
-#define DORP_BLOCK_INIT_Y         (-1)          //落ちてくるブロックの初期Y座標
+#define DROP_BLOCK_INIT_Y         (-1)          //落ちてくるブロックの初期Y座標
 #define DROP_SPEED                (60)          //落下時間
 #define TURN_CROCKWICE            (0)           //時計回りに回転させる
-#define TURN_ANITICROCKWICE       (1)           //反時計回りに回転させる
+#define TURN_ANTICROCKWICE       (1)           //反時計回りに回転させる
 
 /***********************************************************
 * 型定義
@@ -114,7 +114,7 @@ void create_field(void);            //フィールドの生成処理
 void create_block(void);             //ブロックの生成処理
 void move_block(void);               //ブロックの移動処理
 void change_block(void);             //ストック交換処理
-void turn_block_(int clockwise);     //ブロック回転処理
+void turn_block(int clockwise);     //ブロック回転処理
 int check_overlap(int x, int y);     //範囲外チェック処理
 void lock_block(int x, int y);       //着地したブロックを固定済みに変更する処理
 void check_line(void);               //ブロックの横一列確認処理
@@ -174,9 +174,9 @@ int Block_Initialize(void)
 }
 
 /***********************************************************
-*ブロック機能
-*引　数
-*戻り値
+*ブロック機能:更新処理
+*引　数：なし
+*戻り値：なし
 * *********************************************************/
 void Block_Update(void)
 {
@@ -207,9 +207,9 @@ void Block_Update(void)
 	{
 		turn_block(TURN_CROCKWICE);
 	}
-}
+
 //落下処理
-waitTime++;    //カウンタの更新
+WaitTime++;    //カウンタの更新
 if (WaitTime > DROP_SPEED)
 {
 	if (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
@@ -221,7 +221,7 @@ if (WaitTime > DROP_SPEED)
 		//ブロックの固定
 		lock_block(DropBlock_X, DropBlock_Y);
 		//ブロックの消去とブロックを下す処理
-		chack_line();
+		check_line();
 		//新しいブロックの生成
 		create_block();
 	}
@@ -266,12 +266,12 @@ void Block_Draw(void)
 		}
 	}
 	//落ちてくるブロックの描画
-	for (i = 0; i < BLOCK_TROUT_SIZE, i++)
+	for (i = 0; i < BLOCK_TROUT_SIZE; i++)
 	{
 		for (j = 0; j < BLOCK_TROUT_SIZE; j++)
 		{
 			DrawGraph((DropBlock_X + j) * BLOCK_SIZE, (DropBlock_Y + i) * BLOCK_SIZE,
-				BlockImage[DorpBlock[i][j]], TRUE);
+				BlockImage[DropBlock[i][j]], TRUE);
 		}
 	}
 }
@@ -304,20 +304,23 @@ void create_field(void)
 	int i, j;    //ループカウンタ
 
 	//フィールドの生成
-	for (i = 0; i < FIELD_WIDTH; j++)
+	for (i = 0; i < FIELD_HEIGHT; i++)
 	{
-		//フィールド値の設定
-		if (j == 0 || j == FIELD_WIDTH - 1 || i == FIELD_HEIGHT - 1)
+		for (j = 0; j < FIELD_WIDTH; j++)
 		{
-			Field[i][j] = E_BLOCK_WALL;    //壁状態にする
-		}
-		else
-		{
-			Field[i][j] = E_BLOCK_EMPTY;  //空状態にする
+			//フィールド値の設定
+			if (j == 0 || i == FIELD_WIDTH - 1 || i == FIELD_HEIGHT - 1)
+			{
+				Field[i][j] = E_BLOCK_WALL;    //壁状態にする
+			}
+			else
+			{
+				Field[i][j] = E_BLOCK_EMPTY;  //空状態にする
+			}
 		}
 	}
 }
-}
+
 
 /******************************************
 * ブロック機能:ブロック生成処理
@@ -349,7 +352,7 @@ void create_block(void)
 	DropBlock_Y = DROP_BLOCK_INIT_Y;
 
 	//生成できなかった時、ゲームオーバーに遷移する
-	if (check_overlap(DropBlock_x, DropBlock_Y) == FALSE)
+	if (check_overlap(DropBlock_X, DropBlock_Y) == FALSE)
 	{
 		Generate_Flg = FALSE;
 	}
@@ -364,9 +367,9 @@ void move_block(void)
 	//左入力時
 	if (GetButtonDown(XINPUT_BUTTON_DPAD_LEFT))
 	{
-		if (check_overlap(DropBlock_x - 1, DropBlock_Y) == TRUE)
+		if (check_overlap(DropBlock_X - 1, DropBlock_Y) == TRUE)
 		{
-			DropBlock_x--;
+			DropBlock_X--;
 		}
 
 	}
@@ -375,17 +378,32 @@ void move_block(void)
 	//9
 	if (GetButtonDown(XINPUT_BUTTON_DPAD_RIGHT))
 	{
-		if (check_overlap(DropBlock_x + 1, DropBlock_Y) == TRUE)
+		if (check_overlap(DropBlock_X + 1, DropBlock_Y) == TRUE)
 		{
-			DropBlock_x++;
+			DropBlock_X++;
 		}
 	}
 	//上入力時（ハードドロップ処理）
 	if (GetButtonDown(XINPUT_BUTTON_DPAD_UP))
 	{
-		while (check_overlap(DropBlock_x, DropBlock_Y + 1) == TRUE)
+		while (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
 		{
 			DropBlock_Y++;
+		}
+	}
+
+
+   //下入力時（ソフトドロップ処理）
+	if (GetButton(XINPUT_BUTTON_DPAD_DOWN))
+	{
+		if (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
+		{
+			for (int i = 0; i < 100000000; i++)
+			{
+				if(i==99999999)
+                DropBlock_Y++;
+			}
+			
 		}
 	}
 }
@@ -408,10 +426,10 @@ void change_block(void)
 		{
 			for (j = 0; j < BLOCK_TROUT_SIZE; j++)
 			{
-				temp[i][j] == DropBlock[i][j];
-				DropBlock[i][j]Stock[i][j];
+				temp[i][j] = DropBlock[i][j];
+				DropBlock[i][j]=Stock[i][j];
 				//10
-				stock[i][j] = temp[i][j];
+				Stock[i][j] = temp[i][j];
 			}
 		}
 	}
@@ -447,17 +465,21 @@ void turn_block(int clockwise)
 			//ブロックを一時保存する
 			for (i = 0; i < BLOCK_TROUT_SIZE; i++)
 			{
-				temp[j][3 - i] = DropBlock[i][j];
+
+				for (j = 0; j < BLOCK_TROUT_SIZE; j++)
+				{
+					temp[j][3 - i] = DropBlock[i][j];
+				}
+
 			}
 		}
-	}
 	else
 	{
 		//ブロックを一時保存する
 		//11
 		for (i = 0; i < BLOCK_TROUT_SIZE; i++)
 		{
-			for (j = 0; j < BLOCK_TROUT SIZE; j++)
+			for (j = 0; j < BLOCK_TROUT_SIZE; j++)
 			{
 				temp[3 - j][i] = DropBlock[i][j];
 			}
@@ -474,15 +496,14 @@ void turn_block(int clockwise)
 		//壁側の補正処理
 		if (check_overlap(DropBlock_X, DropBlock_Y) && DropBlock_X >= E_BLOCK_WALL)
 		{
-			DropBlock_x--;
+			DropBlock_X--;
 		}
 		if (check_overlap(DropBlock_X, DropBlock_Y) && DropBlock_X <= E_BLOCK_EMPTY)
 		{
 			DropBlock_X++;
 		}
-}
-while (check_overlap(DropBlock_X, DropBlock_Y) == FALSE);
-PlaySoundMem(SoundEffect[2], DX_PLAYTYPE_BACK, TRUE);
+	}while (check_overlap(DropBlock_X, DropBlock_Y) == FALSE);
+	PlaySoundMem(SoundEffect[2], DX_PLAYTYPE_BACK, TRUE);
 }
 /***********************************
 * ブロック機能:範囲外チェック処理
@@ -491,6 +512,7 @@ PlaySoundMem(SoundEffect[2], DX_PLAYTYPE_BACK, TRUE);
 ***********************************/
 int check_overlap(int x, int y)
 {
+	int i, j;    //ループカウンタ
 	for (i = 0; i < BLOCK_TROUT_SIZE; i++)
 	{
 		for (j = 0; j < BLOCK_TROUT_SIZE; j++)

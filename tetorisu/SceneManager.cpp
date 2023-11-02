@@ -110,6 +110,7 @@ void SceneManager_Draw(void)
 		break;
 	case E_GAMEMAIN:
 		GameMainScene_Draw();
+		break;
 	case E_RANKING:
 		RankingScene_Draw();
 		break;
@@ -136,6 +137,7 @@ void Change_Scene(GAME_MODE mode)
 ***************************************************/
 int ErrorCheck(void)
 {
+	
 	if (Get_EndTime() == TRUE)
 		//4
 	{

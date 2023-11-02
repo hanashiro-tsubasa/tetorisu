@@ -241,7 +241,7 @@ void ranking_sort(void)
 * à¯Å@êî:Ç»Çµ
 * ñﬂÇËíl:Ç»Çµ
 * ***********************************************/
-void ranking_Input_name(void)
+void ranking_input_name(void)
 {
 	int c;
 
@@ -345,5 +345,4 @@ void ranking_input_name_draw(void)
 	DrawBox((Cursor.x * 50) + 290, (Cursor.y * 50) + 330,
 		(Cursor.x * 50) + 330, (Cursor.y * 50) + 370,
 		GetColor(255, 255, 255), FALSE);
-	
 }

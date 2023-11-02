@@ -67,14 +67,16 @@ int WINAPI WinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hPrevInstance, _
 	SetFontSize(FONT_SIZE);
 
 	//ゲームループ
-	while (ProcessMessage() == 0 && GetExitButton() != TRUE && ErrorCheck() ==
-		D_NORMALITY)
+	while (ProcessMessage() == 0 && GetExitButton() != TRUE && ErrorCheck() == D_NORMALITY)
 	{
 		//フレーム制御機能更新処理
 		FreamControl_Update();
 
 		//画面の初期化
 		ClearDrawScreen();
+
+		//入力制御機能更新処理
+		InputControl_Update();
 
 		//シーン管理機能更新処理
 		SceneManager_Update();
