@@ -19,3 +19,13 @@ void RankingScene_Draw(void);
 
 void Set_RankingMode(int mode);
 void Set_RankingScore(int score);
+
+
+
+/*
+    ˆê’èŽžŠÔ‚ÌŒo‰ß‚ð‘Ò‚Â
+*/
+
+#include  <stdio.h>
+#include  <time.h>
+

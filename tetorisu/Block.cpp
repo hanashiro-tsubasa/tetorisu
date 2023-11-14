@@ -274,6 +274,15 @@ void Block_Draw(void)
 				BlockImage[DropBlock[i][j]], TRUE);
 		}
 	}
+
+
+	for (i = 0; i < FIELD_HEIGHT; i++)
+	{
+		for (j = 0; j < FIELD_WIDTH; j++)
+		{
+			DrawFormatString(j * BLOCK_SIZE, i * BLOCK_SIZE, 0xFFFFFF, "%d", Field[i][j]);
+		}
+	}
 }
 /**************************************
 * ブロック機能:ブロックの生成判定処理
@@ -309,7 +318,7 @@ void create_field(void)
 		for (j = 0; j < FIELD_WIDTH; j++)
 		{
 			//フィールド値の設定
-			if (j == 0 || i == FIELD_WIDTH - 1 || i == FIELD_HEIGHT - 1)
+			if (j == 0 || j == FIELD_WIDTH - 1 || i == FIELD_HEIGHT - 1)
 			{
 				Field[i][j] = E_BLOCK_WALL;    //壁状態にする
 			}
@@ -365,22 +374,26 @@ void create_block(void)
 void move_block(void)
 {
 	//左入力時
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_LEFT))
+	if (GetButton(XINPUT_BUTTON_DPAD_LEFT))
 	{
 		if (check_overlap(DropBlock_X - 1, DropBlock_Y) == TRUE)
 		{
 			DropBlock_X--;
+			int millisecond = 1 * 100;
+			Sleep(millisecond);
 		}
 
 	}
 
 	//右入力時
 	//9
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_RIGHT))
+	if (GetButton(XINPUT_BUTTON_DPAD_RIGHT))
 	{
 		if (check_overlap(DropBlock_X + 1, DropBlock_Y) == TRUE)
 		{
 			DropBlock_X++;
+			int millisecond = 1 * 100;
+			Sleep(millisecond);
 		}
 	}
 	//上入力時（ハードドロップ処理）
@@ -389,6 +402,7 @@ void move_block(void)
 		while (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
 		{
 			DropBlock_Y++;
+			
 		}
 	}
 
@@ -398,11 +412,10 @@ void move_block(void)
 	{
 		if (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
 		{
-			for (int i = 0; i < 100000000; i++)
-			{
-				if(i==99999999)
-                DropBlock_Y++;
-			}
+			DropBlock_Y++;
+			int millisecond = 1 * 100;
+			Sleep(millisecond);
+			
 			
 		}
 	}
