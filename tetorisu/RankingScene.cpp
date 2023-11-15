@@ -305,7 +305,7 @@ void ranking_input_name(void)
 			else
 			{
 				DispMode = RANKING_DISP_MODE;
-				ranking_sort;
+				ranking_sort();
 			}
 		}
 	}

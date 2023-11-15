@@ -11,8 +11,8 @@
 /*****************************
 *É}ÉNÉçíËã`
 * ***************************/
-#define SCREEN_HEIGHT (756)
-#define SCREEN_WIDTH  (1200)
+#define SCREEN_HEIGHT (720)
+#define SCREEN_WIDTH  (1280)
 #define SCREEN_COLORBIT (32)
 #define FONT_SIZE (20)
 
