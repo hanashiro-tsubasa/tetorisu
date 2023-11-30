@@ -106,6 +106,8 @@ int Stock_Flg;          //ストックフラグ
 int Generate_Flg;       //生成フラグ
 int DeleteLine;         //消したラインの数
 int SoundEffect[3];     //SE
+int count=0;              //交換処理のカウント
+int wait = 0;             //ハードドロップ後の待ち時間
 
 /***********************************************************
 *プロトタイプ宣言
@@ -184,30 +186,32 @@ void Block_Update(void)
 	move_block();
 
 	//ブロックのストック
-	if ((GetButtonDown(XINPUT_BUTTON_LEFT_SHOULDER) == TRUE) ||
-		(GetButtonDown(XINPUT_BUTTON_RIGHT_SHOULDER) == TRUE))
+	if (wait == 0)
 	{
-		//生成可能であれば
-		if (Generate_Flg == TRUE)
-			//5
+		if ((GetButtonDown(XINPUT_BUTTON_LEFT_SHOULDER) == TRUE) ||
+			(GetButtonDown(XINPUT_BUTTON_RIGHT_SHOULDER) == TRUE))
 		{
-			change_block();  //ストック交換処理
-			//ブロックの回転を正位置にする
+			//生成可能であれば
+			if (Generate_Flg == TRUE)
+				//5
+			{
+				change_block();  //ストック交換処理
+				//ブロックの回転を正位置にする
+			}
+		}
+		//ブロックの回転（反時計回り）
+		if ((GetButtonDown(XINPUT_BUTTON_A) == TRUE) ||
+			(GetButtonDown(XINPUT_BUTTON_Y) == TRUE))
+		{
+			turn_block(TURN_ANTICROCKWICE);
+		}
+		//ブロックの回転（時計回り）
+		if ((GetButtonDown(XINPUT_BUTTON_B) == TRUE) ||
+			(GetButtonDown(XINPUT_BUTTON_X) == TRUE))
+		{
+			turn_block(TURN_CROCKWICE);
 		}
 	}
-	//ブロックの回転（反時計回り）
-	if ((GetButtonDown(XINPUT_BUTTON_A) == TRUE) ||
-		(GetButtonDown(XINPUT_BUTTON_Y) == TRUE))
-	{
-		turn_block(TURN_ANTICROCKWICE);
-	}
-	//ブロックの回転（時計回り）
-	if ((GetButtonDown(XINPUT_BUTTON_B) == TRUE) ||
-		(GetButtonDown(XINPUT_BUTTON_X) == TRUE))
-	{
-		turn_block(TURN_CROCKWICE);
-	}
-
 //落下処理
 WaitTime++;    //カウンタの更新
 if (WaitTime > DROP_SPEED)
@@ -276,13 +280,13 @@ void Block_Draw(void)
 	}
 
 
-	for (i = 0; i < FIELD_HEIGHT; i++)
+	/*for (i = 0; i < FIELD_HEIGHT; i++)   ０とか９とか確かめるやつ
 	{
 		for (j = 0; j < FIELD_WIDTH; j++)
 		{
 			DrawFormatString(j * BLOCK_SIZE, i * BLOCK_SIZE, 0xFFFFFF, "%d", Field[i][j]);
 		}
-	}
+	}*/
 }
 /**************************************
 * ブロック機能:ブロックの生成判定処理
@@ -365,6 +369,7 @@ void create_block(void)
 	{
 		Generate_Flg = FALSE;
 	}
+
 }
 /***********************************
 * ブロック機能:ブロックの移動処理
@@ -373,50 +378,54 @@ void create_block(void)
 ***********************************/
 void move_block(void)
 {
-	//左入力時
-	if (GetButton(XINPUT_BUTTON_DPAD_LEFT))
+	if (wait == 0)
 	{
-		if (check_overlap(DropBlock_X - 1, DropBlock_Y) == TRUE)
+		//左入力時
+		if (GetButton(XINPUT_BUTTON_DPAD_LEFT))
 		{
-			DropBlock_X--;
-			int millisecond = 1 * 100;
-			Sleep(millisecond);
+			if (check_overlap(DropBlock_X - 1, DropBlock_Y) == TRUE)
+			{
+				DropBlock_X--;
+				int millisecond = 1 * 100;
+				Sleep(millisecond);
+			}
+
 		}
 
-	}
-
-	//右入力時
-	//9
-	if (GetButton(XINPUT_BUTTON_DPAD_RIGHT))
-	{
-		if (check_overlap(DropBlock_X + 1, DropBlock_Y) == TRUE)
+		//右入力時
+		//9
+		if (GetButton(XINPUT_BUTTON_DPAD_RIGHT))
 		{
-			DropBlock_X++;
-			int millisecond = 1 * 100;
-			Sleep(millisecond);
+			if (check_overlap(DropBlock_X + 1, DropBlock_Y) == TRUE)
+			{
+				DropBlock_X++;
+				int millisecond = 1 * 100;
+				Sleep(millisecond);
+			}
 		}
-	}
-	//上入力時（ハードドロップ処理）
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_UP))
-	{
-		while (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
+		//上入力時（ハードドロップ処理）
+		if (GetButtonDown(XINPUT_BUTTON_DPAD_UP))
 		{
-			DropBlock_Y++;
-			
+			while (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
+			{
+				DropBlock_Y++;
+
+			}
+			wait = 1;
 		}
-	}
 
 
-   //下入力時（ソフトドロップ処理）
-	if (GetButton(XINPUT_BUTTON_DPAD_DOWN))
-	{
-		if (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
+		//下入力時（ソフトドロップ処理）
+		if (GetButton(XINPUT_BUTTON_DPAD_DOWN))
 		{
-			DropBlock_Y++;
-			int millisecond = 1 * 100;
-			Sleep(millisecond);
-			
-			
+			if (check_overlap(DropBlock_X, DropBlock_Y + 1) == TRUE)
+			{
+				DropBlock_Y++;
+				int millisecond = 1 * 100;
+				Sleep(millisecond);
+
+
+			}
 		}
 	}
 }
@@ -435,15 +444,21 @@ void change_block(void)
 	//ストック先がからかどうか
 	if (Stock_Flg == TRUE)
 	{
-		for (i = 0; i < BLOCK_TROUT_SIZE; i++)
+		if (count == 1)
 		{
-			for (j = 0; j < BLOCK_TROUT_SIZE; j++)
+			for (i = 0; i < BLOCK_TROUT_SIZE; i++)
 			{
-				temp[i][j] = DropBlock[i][j];
-				DropBlock[i][j]=Stock[i][j];
-				//10
-				Stock[i][j] = temp[i][j];
+				for (j = 0; j < BLOCK_TROUT_SIZE; j++)
+				{
+					temp[i][j] = DropBlock[i][j];
+					DropBlock[i][j] = Stock[i][j];
+					//10
+					Stock[i][j] = temp[i][j];
+				}
 			}
+			count = 2;
+			DropBlock_X = DROP_BLOCK_INIT_X;
+			DropBlock_Y = DROP_BLOCK_INIT_Y;
 		}
 	}
 	else
@@ -456,8 +471,12 @@ void change_block(void)
 				Stock[i][j] = DropBlock[i][j];
 			}
 		}
+		count = 2;
+		DropBlock_X = DROP_BLOCK_INIT_X;
+		DropBlock_Y = DROP_BLOCK_INIT_Y;
 		//新しいブロックの設定と次のブロックの生成
 		create_block();
+
 	}
 }
 
@@ -547,8 +566,6 @@ int check_overlap(int x, int y)
 * 引　数:落下ブロックの座標（x,x）
 * 戻り値:なし
 * ****************************/
-
-
 void lock_block(int x, int y)
 {
 	int i, j;    //ループカウンタ
@@ -564,6 +581,8 @@ void lock_block(int x, int y)
 		}
 	}
 	PlaySoundMem(SoundEffect[1], DX_PLAYTYPE_BACK, TRUE);
+	count = 1;
+	wait = 0;
 }
 /****************************************
 * ブロック機能:ブロックの横一列確認処理

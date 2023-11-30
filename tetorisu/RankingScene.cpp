@@ -104,10 +104,11 @@ void RankingScene_Draw(void)
 
 	switch (DispMode)
 	{
+	case RANKING_DISP_MODE:
+
 	case RANKING_INPUT_MODE:
 		ranking_input_name_draw();
 		break;
-	case RANKING_DISP_MODE:
 	default:
 		for (i = 0; i < RANKING_MAX; i++)
 		{
@@ -244,35 +245,68 @@ void ranking_sort(void)
 void ranking_input_name(void)
 {
 	int c;
+	int millisecond = 1 * 75;
 
 	//カーソル操作処理
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_LEFT) == TRUE)
+	if (GetButton(XINPUT_BUTTON_DPAD_LEFT) == TRUE)
 	{
 		if (Cursor.x > 0)
 		{
 			Cursor.x--;
+			int millisecond = 1 * 75;
+			Sleep(millisecond);
+		}
+		else
+		{
+			Cursor.x = 12;
+			Sleep(millisecond);
+
 		}
 	}
 
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_RIGHT) == TRUE)
+	if (GetButton(XINPUT_BUTTON_DPAD_RIGHT) == TRUE)
 	{
 		if (Cursor.x < 12)
 		{
 			Cursor.x++;
+			int millisecond = 1 * 75;
+			Sleep(millisecond);
+		}
+		else
+		{
+			Cursor.x = 0;
+			Sleep(millisecond);
+
 		}
 	}
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_UP) == TRUE)
+	if (GetButton(XINPUT_BUTTON_DPAD_UP) == TRUE)
 	{
 		if (Cursor.y > 0)
 		{
 			Cursor.y--;
+			int millisecond = 1 * 75;
+			Sleep(millisecond);
+		}
+		else
+		{
+			Cursor.y = 4;
+			Sleep(millisecond);
+
 		}
 	}
-	if (GetButtonDown(XINPUT_BUTTON_DPAD_DOWN) == TRUE)
+	if (GetButton(XINPUT_BUTTON_DPAD_DOWN) == TRUE)
 	{
 		if (Cursor.y < 4)
 		{
 			Cursor.y++;
+			int millisecond = 1*75;
+			Sleep(millisecond);
+		}
+		else
+		{
+			Cursor.y = 0;
+			Sleep(millisecond);
+
 		}
 	}
 
@@ -338,6 +372,14 @@ void ranking_input_name_draw(void)
 			255), "%-3c", '0' + i);
 	}
 	DrawFormatString(300, 220, GetColor(255, 255, 255), ">%s", New_Score.name);
+	SetFontSize(35);
+	DrawFormatString(792, 532, GetColor(255, 255, 255), "消");
+	DrawFormatString(842, 532, GetColor(255, 0, 0), "決");
+	SetFontSize(15);
+	DrawFormatString(888, 526, GetColor(0, 255, 255), "ス");
+	DrawFormatString(896, 536, GetColor(0, 255, 255), "キ");
+	DrawFormatString(904, 546, GetColor(0, 255, 255), "ッ");
+	DrawFormatString(912, 556, GetColor(0, 255, 255), "プ");
 
 	SetFontSize(20);
 
